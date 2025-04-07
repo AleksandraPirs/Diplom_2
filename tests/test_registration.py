@@ -25,8 +25,13 @@ class TestRegistration:
         assert deserials['user']['email'] == payload['email']
         assert deserials['user']['name'] == payload['name']
         # удаление использованных тестовых данных из базы после теста
-        access_token = deserials['accessToken']
-        requests.delete(Urls.user_delete, headers={'Authorization': access_token})
+        @pytest.fixture(autouse=True)
+        def cleanup(request):
+            def delete_user():
+                access_token = deserials['accessToken']
+                requests.delete(Urls.user_delete, headers={'Authorization': access_token})
+
+            request.addfinalizer(delete_user)
 
     @allure.title('Проверка ответа на запрос регистрации с незаполненным обязательным полем')
     @allure.description('С помощью параметризации выполняем три теста: по очереди отправляем запросы, '

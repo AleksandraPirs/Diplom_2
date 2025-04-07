@@ -1,4 +1,3 @@
-from conftest import *
 import requests
 
 

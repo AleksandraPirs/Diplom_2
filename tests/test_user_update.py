@@ -1,5 +1,3 @@
-from conftest import *
-
 @pytest.fixture
 def updated_user_data():
     return {
