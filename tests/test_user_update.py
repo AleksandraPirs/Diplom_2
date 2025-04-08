@@ -1,10 +1,4 @@
-@pytest.fixture
-def updated_user_data():
-    return {
-        'email': create_random_email(),
-        'password': create_random_password(),
-        'name': create_random_username()
-    }
+
 
 class TestUserUpdate:
     @allure.title('Проверка ответа на запрос изменения данных аутентифицированного пользователя')

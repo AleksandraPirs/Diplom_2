@@ -6,6 +6,41 @@ from data import *
 
 
 @pytest.fixture
+def updated_user_data():
+    return {
+        'email': create_random_email(),
+        'password': create_random_password(),
+        'name': create_random_username()
+    }
+
+@pytest.fixture
+    def register_user(self):
+        """Фикстура для регистрации пользователя с автоматическим удалением после теста"""
+        # Setup - регистрируем пользователя
+        payload = {
+            'email': create_random_email(),
+            'password': create_random_password(),
+            'name': create_random_username()
+        }
+        response = requests.post(Urls.user_register, data=payload)
+        response_data = response.json()
+
+        # Передаем данные тесту
+        yield {
+            'response': response,
+            'payload': payload,
+            'response_data': response_data
+        }
+
+        # Teardown - удаляем пользователя после теста
+        access_token = response_data.get('accessToken')
+        if access_token:
+            requests.delete(
+                Urls.user_delete,
+                headers={'Authorization': access_token}
+            )
+
+@pytest.fixture
 @allure.title('Фикстура создает пользователя с рандомными кредами и удаляет его из базы после теста')
 def create_new_user_and_delete():
     payload_cred = {

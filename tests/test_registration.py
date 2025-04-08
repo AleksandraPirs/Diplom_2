@@ -6,32 +6,25 @@ from data import *
 
 
 class TestRegistration:
+
+
     @allure.title('Проверка успешной регистрации аккаунта с валидными данными')
     @allure.description('Аккаунт создается c кредами, генерируемыми библиотекой Faker, и удаляется из базы '
                         'после теста. В ответе проверяются код и тело, в том числе '
                         'получение accessToken и refreshToken')
-    def test_registration_new_account_success_submit(self):
-        payload = {
-            'email': create_random_email(),
-            'password': create_random_password(),
-            'name': create_random_username()
-        }
-        response = requests.post(Urls.user_register, data=payload)
-        deserials = response.json()
-        assert response.status_code == 200
-        assert deserials['success'] is True
-        assert 'accessToken' in deserials.keys()
-        assert 'refreshToken' in deserials.keys()
-        assert deserials['user']['email'] == payload['email']
-        assert deserials['user']['name'] == payload['name']
-        # удаление использованных тестовых данных из базы после теста
-        @pytest.fixture(autouse=True)
-        def cleanup(request):
-            def delete_user():
-                access_token = deserials['accessToken']
-                requests.delete(Urls.user_delete, headers={'Authorization': access_token})
+    def test_registration_new_account_success_submit(self, register_user):
+        # Получаем данные из фикстуры
+        response = register_user['response']
+        payload = register_user['payload']
+        response_data = register_user['response_data']
 
-            request.addfinalizer(delete_user)
+        # Проверки ответа
+        assert response.status_code == 200
+        assert response_data['success'] is True
+        assert 'accessToken' in response_data
+        assert 'refreshToken' in response_data
+        assert response_data['user']['email'] == payload['email']
+        assert response_data['user']['name'] == payload['name']
 
     @allure.title('Проверка ответа на запрос регистрации с незаполненным обязательным полем')
     @allure.description('С помощью параметризации выполняем три теста: по очереди отправляем запросы, '
